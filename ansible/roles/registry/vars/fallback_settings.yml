@@ -1,0 +1,108 @@
+---
+registry_settings:
+  # === Taskbar ===
+  - path: HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: TaskbarAl
+    data: 0 # 0=left, 1=center
+    type: dword
+
+  - path: HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: TaskbarMn
+    data: 0 # Hide Chat/Teams icon
+    type: dword
+
+  - path: HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: ShowTaskViewButton
+    data: 0 # Hide Task View button
+    type: dword
+
+  - path: HKCU:\Software\Microsoft\Windows\CurrentVersion\Search
+    name: SearchboxTaskbarMode
+    data: 0 # 0=hidden, 1=icon, 2=searchbox
+    type: dword
+
+  # === Explorer ===
+  - path: HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: Hidden
+    data: 1 # 1=show hidden files, 2=don't show
+    type: dword
+
+  - path: HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: HideFileExt
+    data: 0 # 0=show extensions, 1=hide
+    type: dword
+
+  - path: HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: ShowSuperHidden
+    data: 1 # Show protected OS files
+    type: dword
+
+  # Classic right-click context menu (Win10 style)
+  - path: HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32
+    name: "(Default)"
+    data: ""
+    type: string
+
+  - path: HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: EnableSnapAssistFlyout
+    data: 0 # Disable snap layouts popup
+    type: dword
+
+  # === Theme ===
+  - path: HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize
+    name: AppsUseLightTheme
+    data: 0 # 0=dark, 1=light
+    type: dword
+
+  - path: HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize
+    name: SystemUsesLightTheme
+    data: 0 # 0=dark, 1=light
+    type: dword
+
+  - path: HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize
+    name: EnableTransparency
+    data: 0 # Disable transparency effects
+    type: dword
+
+  # === Privacy / Ads ===
+  - path: HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
+    name: SubscribedContent-338393Enabled
+    data: 0 # Disable suggested content in Settings
+    type: dword
+
+  - path: HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
+    name: SubscribedContent-353694Enabled
+    data: 0 # Disable suggested content in Settings
+    type: dword
+
+  - path: HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
+    name: SubscribedContent-338388Enabled
+    data: 0 # Disable suggested content in Settings
+    type: dword
+
+  - path: HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo
+    name: Enabled
+    data: 0 # Disable advertising ID
+    type: dword
+
+  - path: HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy
+    name: TailoredExperiencesWithDiagnosticDataEnabled
+    data: 0 # Disable tailored experiences
+    type: dword
+
+  # === Misc ===
+  - path: HKCU:\Software\Microsoft\Clipboard
+    name: EnableClipboardHistory
+    data: 1 # Enable clipboard history (Win+V)
+    type: dword
+
+  - path: HKCU:\Control Panel\Desktop\WindowMetrics
+    name: MinAnimate
+    data: "0" # Disable minimize animation
+    type: string
+
+  # === Task Manager ===
+  - path: HKCU:\Software\Microsoft\Windows\CurrentVersion\TaskManager
+    name: StartUpTab
+    data: 5 # 0=Processes, 1=Performance, 2=App history, 3=Startup, 4=Users, 5=Details, 6=Services
+    type: dword

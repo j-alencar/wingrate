@@ -1,0 +1,7 @@
+---
+# Validate packages via Chocolatey API before installation. This can be rather slow.
+packval: true
+
+rollback_attempts: 3
+
+package_install_timeout: 420

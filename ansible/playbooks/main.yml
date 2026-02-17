@@ -1,0 +1,39 @@
+---
+- name: Migration Playbook
+  hosts: windows
+  gather_facts: yes
+
+  vars:
+    profile: "{{ profile | default('home') }}"
+
+  pre_tasks:
+    - name: Display banner
+      debug:
+        msg:
+          - "========================================="
+          - "Migration Tool"
+          - "Profile: {{ profile }}"
+          - "========================================="
+
+    - name: Check OS
+      fail:
+        msg: "This playbook is for Windows only"
+      when: ansible_os_family != 'Windows'
+
+    - name: Load profile variables
+      include_vars:
+        file: "../inventory/group_vars/{{ profile }}.yml"
+      tags: always
+
+  tasks:
+    - name: Run migration
+      include_tasks: tasks.yml
+      tags: always
+
+  post_tasks:
+    - name: Display completion message
+      debug:
+        msg:
+          - "========================================="
+          - "Migration complete! Restart Windows to apply all changes"
+          - "========================================="

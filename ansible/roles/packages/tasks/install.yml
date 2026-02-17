@@ -1,0 +1,139 @@
+---
+
+- name: Load installation config
+  include_vars:
+    file: "../vars/install-config.yml"
+
+- name: Display packages to install
+  debug:
+    msg:
+      - "Installing {{ filtered_packages | length }} packages for {{ profile }} profile"
+
+- name: Check installed packages (Chocolatey)
+  win_shell: choco list --local-only --limit-output
+  register: choco_installed
+  changed_when: false
+  failed_when: false
+
+- name: Parse installed Chocolatey packages
+  set_fact:
+    choco_installed_list: "{{ choco_installed.stdout_lines | map('regex_replace', '\\|.*$', '') | list }}"
+  when: choco_installed.stdout_lines is defined
+
+- name: Filter packages already installed
+  set_fact:
+    packages_to_install: "{{ filtered_packages | rejectattr('choco', 'defined') | list + filtered_packages | selectattr('choco', 'defined') | rejectattr('choco', 'in', choco_installed_list | default([])) | list }}"
+
+- name: Display installation plan
+  debug:
+    msg:
+      - "Already installed: {{ filtered_packages | length - packages_to_install | length }}"
+      - "To install: {{ packages_to_install | length }}"
+      - "Timeout per package: {{ package_install_timeout }}s"
+      - "Version rollback attempts: {{ rollback_attempts }}"
+      - "API validation: {{ 'enabled' if (packval | bool) else 'disabled' }}"
+
+- name: Validate packages via Chocolatey API
+  include_tasks: validate-packages.yml
+  when:
+    - packages_to_install | length > 0
+    - packval | default(true) | bool
+
+- name: Display validation skip message
+  debug:
+    msg:
+      - "Skipping Chocolatey API validation (packval=false)"
+      - "WARNING: Flaky packages may fail during installation"
+  when:
+    - packages_to_install | length > 0
+    - not (packval | default(true) | bool)
+
+- name: Classify packages by installation method
+  set_fact:
+    concurrent_packages: "{{ packages_to_install | selectattr('choco', 'defined') | selectattr('concurrent', 'defined') | selectattr('concurrent') | list }}"
+    sequential_packages: "{{ packages_to_install | selectattr('choco', 'defined') | rejectattr('concurrent', 'defined') | list + packages_to_install | selectattr('choco', 'defined') | selectattr('concurrent', 'defined') | rejectattr('concurrent') | list }}"
+    winget_only_packages: "{{ packages_to_install | rejectattr('choco', 'defined') | list }}"
+
+- name: Display installation strategy
+  debug:
+    msg:
+      - "Concurrent (zip/portable): {{ concurrent_packages | map(attribute='name') | list | join(', ') }}"
+      - "Sequential (MSI/EXE): {{ sequential_packages | map(attribute='name') | list | join(', ') }}"
+      - "Winget-only (skipped): {{ winget_only_packages | map(attribute='name') | list | join(', ') }}"
+
+# --- Phase 1: Concurrent installs (zip/portable packages) ---
+
+- name: Install portable packages concurrently (async)
+  win_chocolatey:
+    name: "{{ package_item.choco }}"
+    state: present
+    timeout: "{{ package_install_timeout }}"
+  loop: "{{ concurrent_packages }}"
+  loop_control:
+    loop_var: package_item
+    label: "{{ package_item.name }}"
+  async: "{{ package_install_timeout | int + 120 }}"
+  poll: 0
+  register: async_jobs
+  when: concurrent_packages | length > 0
+
+- name: Wait for concurrent installations to finish
+  async_status:
+    jid: "{{ item.ansible_job_id }}"
+  loop: "{{ async_jobs.results | default([]) }}"
+  loop_control:
+    label: "{{ item.package_item.name | default('unknown') }}"
+  register: async_results
+  until: async_results.finished
+  retries: "{{ ((package_install_timeout | int + 120) / 15) | int }}"
+  delay: 15
+  when:
+    - async_jobs.results is defined
+    - item.ansible_job_id is defined
+  ignore_errors: true
+
+- name: Report concurrent install results
+  debug:
+    msg: "{{ '✓' if (item.failed is not defined or not item.failed) else '✗' }} {{ item.item.package_item.name }}"
+  loop: "{{ async_results.results | default([]) }}"
+  loop_control:
+    label: "{{ item.item.package_item.name | default('unknown') }}"
+  when: item is not skipped
+
+- name: Collect failed concurrent packages
+  set_fact:
+    failed_concurrent: "{{ async_results.results | default([]) | selectattr('failed', 'defined') | selectattr('failed') | map(attribute='item') | map(attribute='package_item') | list }}"
+
+# --- Phase 2: Sequential installs (MSI/EXE packages) ---
+
+- name: Install packages sequentially via Chocolatey
+  include_tasks: install-package.yml
+  loop: "{{ sequential_packages }}"
+  loop_control:
+    loop_var: package_item
+
+# --- Phase 3: Rollback any failed concurrent packages ---
+
+- name: Retry failed concurrent packages with version rollback
+  include_tasks: install-package-rollback.yml
+  loop: "{{ failed_concurrent | default([]) }}"
+  loop_control:
+    loop_var: package_item
+  when: failed_concurrent | default([]) | length > 0
+
+- name: Install custom installer packages
+  include_tasks: custom-installers.yml
+  when: custom_installer_packages is defined and custom_installer_packages | length > 0
+
+- name: Install Python tools via uv
+  include_tasks: uv-tools.yml
+  when: uv_tools is defined and uv_tools | length > 0
+
+- name: Display final installation summary
+  debug:
+    msg:
+      - "Package installation complete"
+      - "Chocolatey packages: {{ packages_to_install | length }}"
+      - "Custom installers: {{ (custom_installer_packages | default([]) | selectattr('profile_tags', 'contains', profile) | list) | length }}"
+      - "UV tools: {{ uv_tools | default([]) | length }}"
+      - "Check logs for any failures"

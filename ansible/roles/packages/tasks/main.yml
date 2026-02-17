@@ -1,0 +1,22 @@
+---
+- name: Load package definitions
+  include_vars:
+    file: "../vars/packages.yml"
+  tags: always
+
+- name: Filter packages by profile
+  set_fact:
+    filtered_packages: "{{ packages | selectattr('profile_tags', 'defined') | selectattr('profile_tags', 'contains', profile) | list }}"
+  tags: always
+
+- name: Display package summary
+  debug:
+    msg:
+      - "Profile: {{ profile }}"
+      - "Total packages in config: {{ packages | length }}"
+      - "Filtered packages for this profile: {{ filtered_packages | length }}"
+  tags: always
+
+- name: Install packages
+  include_tasks: install.yml
+  tags: always

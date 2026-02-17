@@ -1,0 +1,285 @@
+---
+packages:
+  - name: Everything
+    winget: voidtools.Everything
+    choco: everything
+    profile_tags: [work, home]
+    requires: []
+
+  - name: 7-Zip
+    winget: 7zip.7zip
+    choco: 7zip
+    profile_tags: [work, home]
+    requires: []
+
+  - name: PowerToys
+    winget: Microsoft.PowerToys
+    choco: powertoys
+    profile_tags: [work, home]
+    requires: []
+
+  - name: Greenshot
+    winget: Greenshot.Greenshot
+    choco: greenshot
+    profile_tags: [work, home]
+    requires: []
+
+  - name: BCUninstaller
+    winget: Klocman.BulkCrapUninstaller
+    choco: bulk-crap-uninstaller
+    profile_tags: [work, home]
+    requires: []
+
+  - name: Git
+    winget: Git.Git
+    choco: git
+    profile_tags: [work, home]
+    requires: []
+
+  - name: Python
+    winget: Python.Python.3.12
+    choco: python
+    profile_tags: [work, home]
+    requires: []
+
+  - name: Node.js
+    winget: OpenJS.NodeJS
+    choco: nodejs
+    profile_tags: [work]
+    requires: []
+
+  - name: UV
+    winget: astral-sh.uv
+    choco: uv
+    profile_tags: [work, home]
+    requires: [python]
+    concurrent: true
+
+  - name: Zed
+    winget: ZedIndustries.Zed
+    profile_tags: [work]
+    requires: []
+
+  - name: Visual Studio Build Tools
+    winget: Microsoft.VisualStudio.2022.BuildTools
+    choco: visualstudio2022buildtools
+    profile_tags: [work]
+    requires: [dotnet, vcredist]
+
+  - name: TortoiseSVN
+    winget: TortoiseSVN.TortoiseSVN
+    choco: tortoisesvn
+    profile_tags: [work]
+    requires: []
+
+  - name: lazydocker
+    winget: jesseduffield.lazydocker
+    choco: lazydocker
+    profile_tags: [work]
+    requires: []
+    concurrent: true
+
+  - name: Zeal
+    winget: ZealDevelopers.Zeal
+    choco: zeal
+    profile_tags: [work]
+    requires: []
+
+  - name: Java JDK
+    winget: Oracle.JDK.21
+    choco: openjdk
+    profile_tags: [work]
+    requires: []
+    concurrent: true
+
+  - name: GlazeWM
+    winget: glzr-io.glazewm
+    profile_tags: [work]
+    requires: []
+
+  - name: Starship
+    winget: Starship.Starship
+    profile_tags: [work]
+    requires: []
+
+  - name: azcopy
+    winget: Microsoft.AzCopy
+    choco: azcopy10
+    profile_tags: [work]
+    requires: []
+    concurrent: true
+
+  - name: OpenCode
+    winget: opencode-ai.opencode
+    profile_tags: [work, home]
+    requires: []
+
+  - name: Firefox
+    winget: Mozilla.Firefox
+    choco: firefox
+    profile_tags: [work, home]
+    requires: []
+
+  - name: Discord
+    winget: Discord.Discord
+    choco: discord
+    profile_tags: [home]
+    requires: []
+
+  - name: Obsidian
+    winget: Obsidian.Obsidian
+    choco: obsidian
+    profile_tags: [work, home]
+    requires: []
+
+  - name: KeePass
+    winget: DominikReichl.KeePass
+    choco: keepass
+    profile_tags: [work, home]
+    requires: []
+
+  - name: Dropbox
+    winget: Dropbox.Dropbox
+    choco: dropbox
+    profile_tags: [home]
+    requires: []
+
+  - name: foobar2000
+    winget: PeterPawlowski.foobar2000
+    choco: foobar2000
+    profile_tags: [home]
+    requires: []
+
+  - name: OBS Studio
+    winget: OBSProject.OBSStudio
+    choco: obs-studio
+    profile_tags: [home]
+    requires: []
+
+  - name: MPC-HC
+    winget: clsid2.mpc-hc
+    choco: mpc-hc
+    profile_tags: [home]
+    requires: []
+
+  - name: MP3Tag
+    winget: Florian.Heidenreich.Mp3tag
+    choco: mp3tag
+    profile_tags: [home]
+    requires: []
+
+  - name: Audacity
+    winget: Audacity.Audacity
+    choco: audacity
+    profile_tags: [home]
+    requires: []
+
+  - name: Paint.NET
+    winget: dotPDN.PaintDotNet
+    choco: paint.net
+    profile_tags: [home]
+    requires: [dotnet]
+
+  - name: qBittorrent
+    winget: qBittorrent.qBittorrent
+    choco: qbittorrent
+    profile_tags: [home]
+    requires: []
+
+  - name: ProtonVPN
+    winget: ProtonTechnologies.ProtonVPN
+    choco: protonvpn
+    profile_tags: [work, home]
+    requires: []
+
+  - name: Steam
+    winget: Valve.Steam
+    choco: steam
+    profile_tags: [home]
+    requires: [vcredist]
+
+  - name: Epic Games Launcher
+    winget: EpicGames.EpicGamesLauncher
+    choco: epicgameslauncher
+    profile_tags: [home]
+    requires: []
+
+  - name: RetroArch
+    winget: libretro.RetroArch
+    choco: retroarch
+    profile_tags: [home]
+    requires: []
+    concurrent: true
+
+  - name: AutoHotkey
+    winget: AutoHotkey.AutoHotkey
+    choco: autohotkey
+    profile_tags: [work, home]
+    requires: []
+
+  - name: Open-Shell
+    winget: Open-Shell.Open-Shell-Menu
+    choco: open-shell
+    profile_tags: [work, home]
+    requires: []
+
+custom_installer_packages:
+  - name: Jackett
+    github_repo: Jackett/Jackett
+    asset_pattern: "Jackett\\.Installer\\.Windows\\.exe$"
+    install_type: installer
+    install_args: "/VERYSILENT /NORESTART"
+    profile_tags: [home]
+    fallback_url: https://github.com/Jackett/Jackett/releases/latest
+
+  - name: Soulseek QT
+    fallback_url: https://www.slsknet.org/SoulseekQt/Windows/SoulseekQt-2019-7-22.exe
+    install_type: installer
+    install_args: "/S"
+    profile_tags: [home]
+
+  - name: Neural Amp Modeler
+    github_repo: sdatkinson/NeuralAmpModelerPlugin
+    asset_pattern: "Neural_Amp_Modeler-.*\\.exe$"
+    install_type: installer
+    install_args: "/VERYSILENT"
+    profile_tags: [home]
+    fallback_url: https://github.com/sdatkinson/NeuralAmpModelerPlugin/releases/latest
+
+  - name: LiveCaptions Translator
+    github_repo: SakiRinn/LiveCaptions-Translator
+    asset_pattern: "LiveCaptions-Translator.*\\.zip$"
+    install_type: portable
+    extract_to: "%PROGRAMFILES%\\LiveCaptions-Translator"
+    profile_tags: [home]
+    fallback_url: https://github.com/SakiRinn/LiveCaptions-Translator/releases/latest
+
+  - name: rkill
+    fallback_url: https://download.bleepingcomputer.com/grinler/rkill.exe
+    install_type: portable
+    extract_to: "%USERPROFILE%\\Tools"
+    profile_tags: [work, home]
+
+  - name: FreeTube
+    github_repo: FreeTubeApp/FreeTube
+    asset_pattern: "freetube-.*-win-x64-portable\\.zip$"
+    install_type: portable
+    extract_to: "%PROGRAMFILES%\\FreeTube"
+    profile_tags: [home]
+    fallback_url: https://github.com/FreeTubeApp/FreeTube/releases/latest
+
+  - name: Parsec
+    fallback_url: https://builds.parsec.app/package/parsec-windows.exe
+    install_type: installer
+    install_args: "/silent"
+    profile_tags: [home]
+
+uv_tools:
+  - ruff
+  - flake8
+  - httpie
+  - yt-dlp
+  - ansible
+  - grip
+  - pre-commit
+  - tldr

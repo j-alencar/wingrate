@@ -1,0 +1,15 @@
+---
+# Install with: ansible-galaxy collection install -r requirements.yml
+
+collections:
+  - name: ansible.windows
+    version: ">=2.0.0"
+    source: https://galaxy.ansible.com
+
+  - name: community.windows
+    version: ">=2.0.0"
+    source: https://galaxy.ansible.com
+
+  - name: community.general
+    version: ">=8.0.0"
+    source: https://galaxy.ansible.com

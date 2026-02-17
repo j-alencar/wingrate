@@ -1,0 +1,73 @@
+---
+
+- name: Check if Open-Shell is installed
+  win_shell: |
+    if (Test-Path "C:\Program Files\Open-Shell\StartMenu.exe") {
+        Write-Output "installed"
+    } elseif (Test-Path "${env:ProgramFiles}\Open-Shell\StartMenu.exe") {
+        Write-Output "installed"
+    } else {
+        Write-Output "not_installed"
+    }
+  register: openshell_check
+  changed_when: false
+
+- name: Skip if Open-Shell not installed
+  debug:
+    msg: "Open-Shell is not installed, skipping settings import"
+  when: "'not_installed' in openshell_check.stdout"
+
+- name: Copy Open-Shell Start Menu settings
+  win_copy:
+    src: openshell-startmenu.reg
+    dest: C:\temp\openshell-startmenu.reg
+  when: "'installed' in openshell_check.stdout"
+
+- name: Copy Open-Shell Explorer settings
+  win_copy:
+    src: openshell-explorer.reg
+    dest: C:\temp\openshell-explorer.reg
+  when: "'installed' in openshell_check.stdout"
+
+- name: Import Open-Shell Start Menu settings
+  win_shell: |
+    reg import C:\temp\openshell-startmenu.reg
+    if ($LASTEXITCODE -eq 0) {
+        Write-Output "CHANGED: Imported Start Menu settings"
+    } else {
+        Write-Output "FAILED: Could not import Start Menu settings"
+        exit 1
+    }
+  register: startmenu_import
+  changed_when: "'CHANGED:' in startmenu_import.stdout"
+  when: "'installed' in openshell_check.stdout"
+
+- name: Import Open-Shell Explorer settings
+  win_shell: |
+    reg import C:\temp\openshell-explorer.reg
+    if ($LASTEXITCODE -eq 0) {
+        Write-Output "CHANGED: Imported Explorer settings"
+    } else {
+        Write-Output "FAILED: Could not import Explorer settings"
+        exit 1
+    }
+  register: explorer_import
+  changed_when: "'CHANGED:' in explorer_import.stdout"
+  when: "'installed' in openshell_check.stdout"
+
+- name: Clean up temp files
+  win_file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - C:\temp\openshell-startmenu.reg
+    - C:\temp\openshell-explorer.reg
+  when: "'installed' in openshell_check.stdout"
+
+- name: Display Open-Shell import results
+  debug:
+    msg:
+      - "Open-Shell settings imported successfully"
+      - "Start Menu: {{ startmenu_import.stdout | default('skipped') | trim }}"
+      - "Explorer: {{ explorer_import.stdout | default('skipped') | trim }}"
+  when: "'installed' in openshell_check.stdout"

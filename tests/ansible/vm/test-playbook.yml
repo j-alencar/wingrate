@@ -1,0 +1,119 @@
+---
+# basic connectivity and prerequisite checks
+
+- name: Test Vagrant VM connectivity
+  hosts: win11-vagrant
+  gather_facts: yes
+
+  tasks:
+    - name: Display Ansible connection info
+      debug:
+        msg:
+          - "Connected to: {{ ansible_hostname }}"
+          - "OS: {{ ansible_os_name }}"
+          - "OS Version: {{ ansible_os_family }}"
+          - "Architecture: {{ ansible_architecture }}"
+          - "User: {{ ansible_user }}"
+
+    - name: Check PowerShell version
+      win_shell: |
+        $PSVersionTable.PSVersion | Format-List
+      register: ps_version
+
+    - name: Display PowerShell version
+      debug:
+        msg: "{{ ps_version.stdout_lines }}"
+
+    - name: Check if Chocolatey is installed
+      win_shell: |
+        if (Test-Path "$env:ProgramData\chocolatey\bin\choco.exe") {
+          choco --version
+        } else {
+          Write-Output "NOT_INSTALLED"
+          exit 1
+        }
+      register: choco_check
+      failed_when: false
+
+    - name: Display Chocolatey status
+      debug:
+        msg: "Chocolatey: {{ 'Installed (' + choco_check.stdout.strip() + ')' if choco_check.rc == 0 else 'Not installed' }}"
+
+    - name: Check available disk space
+      win_shell: |
+        Get-PSDrive -PSProvider FileSystem | Select-Object Name, Used, Free | Format-Table -AutoSize
+      register: disk_space
+
+    - name: Display disk space
+      debug:
+        msg: "{{ disk_space.stdout_lines }}"
+
+    - name: Check network connectivity
+      win_shell: |
+        Test-NetConnection -ComputerName google.com -Port 443 -InformationLevel Detailed
+      register: network_test
+      failed_when: false
+
+    - name: Display network status
+      debug:
+        msg: "Internet connectivity: {{ 'OK' if network_test.rc == 0 else 'FAILED' }}"
+
+    - name: Test Windows Features (WSL capability)
+      win_shell: |
+        Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux | Select-Object State
+      register: wsl_feature
+      failed_when: false
+
+    - name: Display WSL feature status
+      debug:
+        msg: "WSL feature: {{ wsl_feature.stdout_lines }}"
+
+    - name: Check if WinGet is available
+      win_shell: |
+        try {
+          winget --version
+        } catch {
+          Write-Output "NOT_INSTALLED"
+          exit 1
+        }
+      register: winget_check
+      failed_when: false
+
+    - name: Display WinGet status
+      debug:
+        msg: "WinGet: {{ 'Installed (' + winget_check.stdout.strip() + ')' if winget_check.rc == 0 else 'Not installed' }}"
+
+    - name: Create test directory
+      win_file:
+        path: C:\temp\ansible-test
+        state: directory
+
+    - name: Write test file
+      win_copy:
+        content: |
+          Ansible connectivity test successful!
+          Timestamp: {{ ansible_date_time.iso8601 }}
+          Host: {{ ansible_hostname }}
+        dest: C:\temp\ansible-test\connectivity-test.txt
+
+    - name: Read test file back
+      win_shell: |
+        Get-Content C:\temp\ansible-test\connectivity-test.txt
+      register: test_file
+
+    - name: Display test file contents
+      debug:
+        msg: "{{ test_file.stdout_lines }}"
+
+    - name: Test summary
+      debug:
+        msg:
+          - "=== Vagrant VM Test Summary ==="
+          - "Ansible connectivity: OK"
+          - "PowerShell: {{ ps_version.stdout_lines[0] | default('Unknown') }}"
+          - "Chocolatey: {{ 'Installed' if choco_check.rc == 0 else 'Not installed' }}"
+          - "WinGet: {{ 'Installed' if winget_check.rc == 0 else 'Not installed' }}"
+          - "Internet: {{ 'Connected' if network_test.rc == 0 else 'Disconnected' }}"
+          - "File operations: OK"
+          - ""
+          - "VM is ready for full migration playbook testing!"

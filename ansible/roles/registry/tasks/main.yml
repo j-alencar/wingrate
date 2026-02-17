@@ -1,0 +1,81 @@
+---
+- name: Display registry configuration info
+  debug:
+    msg:
+      - "Configuring Windows registry for profile: {{ migration_profile }}"
+
+- name: Check if WinGet is installed
+  win_shell: |
+    try {
+      $version = winget --version
+      Write-Output $version
+    } catch {
+      Write-Output "not_installed"
+      exit 1
+    }
+  register: winget_check
+  failed_when: false
+  changed_when: false
+
+- name: Parse WinGet version
+  set_fact:
+    winget_version: "{{ winget_check.stdout | trim }}"
+    winget_available: "{{ winget_check.rc == 0 }}"
+  when: winget_check is defined
+
+- name: Display WinGet status
+  debug:
+    msg:
+      - "WinGet installed: {{ winget_available }}"
+      - "WinGet version: {{ winget_version if winget_available else 'N/A' }}"
+
+- name: Check WinGet version meets minimum requirement (1.6.2631+)
+  set_fact:
+    winget_configure_supported: >-
+      {{
+        winget_available and
+        (winget_version | regex_search('v?(\d+)\.(\d+)\.(\d+)', '\\1', '\\2', '\\3') is not none) and
+        (
+          (winget_version | regex_search('v?(\d+)\.(\d+)\.(\d+)', '\\1') | default([0]) | first | int > 1) or
+          (
+            (winget_version | regex_search('v?(\d+)\.(\d+)\.(\d+)', '\\1') | default([0]) | first | int == 1) and
+            (
+              (winget_version | regex_search('v?(\d+)\.(\d+)\.(\d+)', '\\2') | default([0]) | first | int > 6) or
+              (
+                (winget_version | regex_search('v?(\d+)\.(\d+)\.(\d+)', '\\2') | default([0]) | first | int == 6) and
+                (winget_version | regex_search('v?(\d+)\.(\d+)\.(\d+)', '\\3') | default([0]) | first | int >= 2631)
+              )
+            )
+          )
+        )
+      }}
+
+- name: Display configuration method
+  debug:
+    msg: >-
+      {{
+        'Using WinGet Configure (DSC)'
+        if winget_configure_supported
+        else 'Using win_regedit fallback'
+      }}
+
+- name: Apply Windows settings via WinGet Configure
+  include_tasks: winget_configure.yml
+  when: winget_configure_supported | default(false)
+  tags: winget_dsc
+
+- name: Apply Windows settings via win_regedit
+  include_tasks: win_regedit_fallback.yml
+  when: not (winget_configure_supported | default(false))
+  tags: win_regedit_fallback
+
+- name: Import Open-Shell settings
+  include_tasks: openshell.yml
+  tags: openshell
+
+- name: Registry configuration complete
+  debug:
+    msg:
+      - "Windows registry configuration completed successfully"
+      - "Profile: {{ migration_profile }}"
+      - "Method: {{ 'WinGet Configure DSC' if winget_configure_supported else 'win_regedit' }}"

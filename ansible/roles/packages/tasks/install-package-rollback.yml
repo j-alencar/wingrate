@@ -1,0 +1,47 @@
+---
+
+- name: "Get available versions for {{ package_item.name }}"
+  win_shell: |
+    choco search {{ package_item.choco }} --all-versions --exact --limit-output | Select-Object -First {{ rollback_attempts + 2 }}
+  register: available_versions
+  ignore_errors: true
+  changed_when: false
+
+- name: "Parse version list for {{ package_item.name }}"
+  set_fact:
+    version_list: "{{ available_versions.stdout_lines | map('regex_replace', '^[^|]+\\|(.+)$', '\\1') | list }}"
+  when:
+    - available_versions.stdout_lines is defined
+    - available_versions.stdout_lines | length > 1
+
+- name: "Try {{ package_item.name }} with version {{ version_item }}"
+  win_chocolatey:
+    name: "{{ package_item.choco }}"
+    version: "{{ version_item }}"
+    state: present
+    timeout: "{{ package_install_timeout }}"
+    force: true  # allow installing older version
+  loop: "{{ version_list[1:rollback_attempts+1] | default([]) }}"
+  loop_control:
+    loop_var: version_item
+  register: rollback_result
+  ignore_errors: true
+  when:
+    - version_list is defined
+    - version_list | length > 1
+
+- name: "{{ package_item.name }} - Rollback succeeded"
+  debug:
+    msg: "✓ Installed {{ package_item.name }} via version rollback to {{ rollback_result.results | selectattr('changed', 'equalto', true) | map(attribute='version_item') | first | default('unknown') }}"
+  when:
+    - rollback_result is defined
+    - rollback_result.results is defined
+    - rollback_result.results | selectattr('changed', 'equalto', true) | list | length > 0
+
+- name: "{{ package_item.name }} - All installation attempts failed"
+  debug:
+    msg: "✗ FAILED: {{ package_item.name }} - tried choco latest + {{ rollback_attempts }} previous versions"
+  when:
+    - rollback_result is defined
+    - rollback_result.results is defined
+    - rollback_result.results | selectattr('changed', 'equalto', true) | list | length == 0

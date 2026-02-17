@@ -1,0 +1,89 @@
+---
+# Install Custom Package
+# Handles GitHub releases API, direct downloads, and installers
+
+- name: Display package info
+  debug:
+    msg: "Installing {{ custom_package.name }}"
+
+- name: Set GitHub API headers
+  set_fact:
+    github_headers:
+      Accept: "application/vnd.github.v3+json"
+      Authorization: "token {{ lookup('env', 'GITHUB_TOKEN') }}"
+  when: lookup('env', 'GITHUB_TOKEN') != ''
+
+- name: Set GitHub API headers (unauthenticated)
+  set_fact:
+    github_headers:
+      Accept: "application/vnd.github.v3+json"
+  when: lookup('env', 'GITHUB_TOKEN') == ''
+
+- block:
+    - name: Fetch latest release from GitHub API
+      ansible.windows.win_uri:
+        url: "https://api.github.com/repos/{{ custom_package.github_repo }}/releases/latest"
+        method: GET
+        headers: "{{ github_headers }}"
+        return_content: true
+        status_code: [200, 404]
+      register: github_release
+      when: custom_package.github_repo is defined
+
+    - name: Find matching asset
+      set_fact:
+        download_url: "{{ item.browser_download_url }}"
+        download_filename: "{{ item.name }}"
+      loop: "{{ github_release.json.assets }}"
+      when:
+        - custom_package.github_repo is defined
+        - github_release.status == 200
+        - item.name is regex(custom_package.asset_pattern)
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Display GitHub API result
+      debug:
+        msg:
+          - "Found asset via GitHub API: {{ download_filename | default('Not found') }}"
+          - "URL: {{ download_url | default('N/A') }}"
+      when: custom_package.github_repo is defined
+
+  rescue:
+    - name: GitHub API failed - will use fallback URL
+      debug:
+        msg:
+          - "GitHub API request failed or rate limited"
+          - "Falling back to direct URL: {{ custom_package.fallback_url | default('Not specified') }}"
+
+# direct URL if GitHub API failed or no github_repo specified
+- name: Use fallback URL
+  set_fact:
+    download_url: "{{ custom_package.fallback_url }}"
+    download_filename: "{{ custom_package.fallback_url | basename }}"
+  when:
+    - download_url is not defined
+    - custom_package.fallback_url is defined
+
+- name: Fail if no download URL available
+  fail:
+    msg: "No download URL available for {{ custom_package.name }}. GitHub API failed and no fallback_url specified."
+  when: download_url is not defined
+
+- name: Create temp download directory
+  ansible.windows.win_file:
+    path: C:\temp\installers
+    state: directory
+
+- name: Download installer/archive
+  ansible.windows.win_get_url:
+    url: "{{ download_url }}"
+    dest: "C:\\temp\\installers\\{{ download_filename }}"
+    force: no
+  register: download_result
+
+- name: Execute custom installer
+  include_tasks: execute-custom-installer.yml
+  vars:
+    installer_path: "{{ download_result.dest }}"
+    package_config: "{{ custom_package }}"

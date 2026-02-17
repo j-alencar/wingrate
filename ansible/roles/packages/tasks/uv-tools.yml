@@ -1,0 +1,20 @@
+---
+
+- name: Check if uv is available
+  win_shell: uv --version
+  register: uv_check
+  changed_when: false
+  failed_when: false
+
+- name: Install Python tools via uv
+  win_shell: uv tool install {{ item }}
+  loop: "{{ uv_tools }}"
+  when: uv_check.rc == 0
+  register: uv_install
+  changed_when: "'Installed' in uv_install.stdout"
+  failed_when: false
+
+- name: Skip uv tools (uv not installed)
+  debug:
+    msg: "Skipping uv tools - uv is not installed"
+  when: uv_check.rc != 0

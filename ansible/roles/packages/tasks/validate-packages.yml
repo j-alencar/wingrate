@@ -1,0 +1,54 @@
+---
+# detect failing tests/checksums
+
+- name: Query Chocolatey API for package validation status
+  ansible.windows.win_uri:
+    url: "https://community.chocolatey.org/api/v2/Packages()?$filter=Id eq '{{ item.choco }}' and IsLatestVersion&$select=Id,Version,PackageTestResultStatus,PackageValidationResultStatus"
+    method: GET
+    return_content: true
+  register: package_validation
+  loop: "{{ packages_to_install }}"
+  when:
+    - item.choco is defined
+    - item.choco != ''
+  ignore_errors: true
+  changed_when: false
+
+- name: Parse validation results
+  set_fact:
+    packages_with_issues: "{{ packages_with_issues | default([]) + [{'name': item.item.name, 'choco': item.item.choco, 'test_status': (item.json.d | first).PackageTestResultStatus | default('Unknown'), 'validation_status': (item.json.d | first).PackageValidationResultStatus | default('Unknown')}] }}"
+  loop: "{{ package_validation.results }}"
+  when:
+    - item is not skipped
+    - item.json is defined
+    - item.json.d is defined
+    - item.json.d | length > 0
+    - (item.json.d | first).PackageTestResultStatus is defined
+    - (item.json.d | first).PackageTestResultStatus != 'Passing'
+  loop_control:
+    label: "{{ item.item.name }}"
+
+- name: Display packages with failing tests
+  debug:
+    msg:
+      - "=========================================="
+      - "WARNING: Packages with failing tests detected"
+      - "=========================================="
+      - ""
+      - "The following {{ packages_with_issues | length }} package(s) have failing validation on Chocolatey:"
+      - ""
+      - "{% for pkg in packages_with_issues %}  ⚠ {{ pkg.name }} ({{ pkg.choco }})"
+      - "    Test Status: {{ pkg.test_status }}"
+      - "    Validation: {{ pkg.validation_status }}"
+      - "{% endfor %}"
+      - ""
+      - "Flaky packages will likely fail to install. Consider:"
+      - "  • Removing them from packages.yml"
+      - "  • Checking in with the package maintainer(s) to fix issues"
+      - "  • Installing manually via alternative method"
+      - ""
+      - "Continuing with installation (will ignore failed packages)..."
+      - "=========================================="
+  when:
+    - packages_with_issues is defined
+    - packages_with_issues | length > 0

@@ -1,0 +1,46 @@
+---
+- name: Test Open-Shell Settings Import
+  hosts: localhost
+  gather_facts: no
+
+  tasks:
+    - name: Check if Open-Shell is installed
+      win_shell: |
+        if (Test-Path "C:\Program Files\Open-Shell\StartMenu.exe") {
+            Write-Output "installed"
+        } else {
+            Write-Output "not_installed"
+        }
+      register: openshell_check
+      changed_when: false
+
+    - name: Display check result
+      debug:
+        msg: "Open-Shell: {{ openshell_check.stdout | trim }}"
+
+    - name: Import settings (reg file already uploaded to C:\temp)
+      win_shell: reg import C:\temp\openshell-startmenu.reg
+      register: import_result
+
+    - name: Verify imported settings
+      win_shell: |
+        $val = (Get-ItemProperty -Path "HKCU:\Software\OpenShell\StartMenu\Settings" -ErrorAction SilentlyContinue)
+        if ($val) {
+            Write-Output "MenuStyle: $($val.MenuStyle)"
+            Write-Output "SkinW7: $($val.SkinW7)"
+            Write-Output "TaskbarLook: $($val.TaskbarLook)"
+            Write-Output "CustomTaskbar: $($val.CustomTaskbar)"
+            Write-Output "SkipMetro: $($val.SkipMetro)"
+        } else {
+            Write-Output "ERROR: Settings not found in registry"
+        }
+      register: verify
+
+    - name: Display verification
+      debug:
+        msg: "{{ verify.stdout_lines }}"
+
+    - name: Clean up
+      win_file:
+        path: C:\temp\openshell-startmenu.reg
+        state: absent

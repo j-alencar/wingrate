@@ -1,0 +1,44 @@
+---
+- name: Test WSL cross-distro package management
+  hosts: localhost
+  gather_facts: no
+
+  vars:
+    profile: work
+    wsl_distro: Ubuntu
+    wsl_packages:
+      - name: Zoxide
+        install_method: script
+        install_script: curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
+        category: system
+        profile_tags: [work]
+
+  tasks:
+    - name: Detect default user (UID 1000)
+      win_shell: "wsl -d {{ wsl_distro }} -- bash -c \"getent passwd 1000 | cut -d: -f1\""
+      register: _wsl_default_user
+      changed_when: false
+
+    - name: Set user fact
+      set_fact:
+        _wsl_user: "{{ _wsl_default_user.stdout | trim }}"
+
+    - name: Display user
+      debug:
+        msg: "Target user: '{{ _wsl_user }}'"
+
+    - name: Install zoxide as user
+      win_shell: "wsl -d {{ wsl_distro }} -u {{ _wsl_user }} -- bash -lc \"curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh\""
+      register: zoxide_install
+
+    - name: Display install output
+      debug:
+        msg: "{{ zoxide_install.stdout_lines }}"
+
+    - name: Verify zoxide
+      win_shell: "wsl -d {{ wsl_distro }} -u {{ _wsl_user }} -- bash -lc \"which zoxide && zoxide --version\""
+      register: verify
+
+    - name: Display verification
+      debug:
+        msg: "{{ verify.stdout_lines }}"

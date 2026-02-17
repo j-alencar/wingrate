@@ -1,0 +1,32 @@
+---
+
+- name: Migration Tasks
+  block:
+    - name: Pre-flight validation
+      debug:
+        msg: "Starting migration for profile: {{ profile }}"
+      tags: always
+
+    - name: Install packages
+      import_role:
+        name: packages
+      tags: packages
+
+    - name: Configure registry settings
+      import_role:
+        name: registry
+      tags: registry
+
+    - name: Verify installation
+      debug:
+        msg: "Migration complete for profile: {{ profile }}"
+      tags: always
+
+  rescue:
+    - name: Migration failed
+      debug:
+        msg:
+          - "ERROR: Migration failed!"
+          - "Check logs for details: /tmp/ansible.log"
+          - "You may need to run with -vvv for verbose output"
+      failed_when: true

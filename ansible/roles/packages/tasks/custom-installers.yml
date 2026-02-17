@@ -1,0 +1,37 @@
+---
+# Handles packages not available via package managers
+
+- name: Load custom installer packages
+  set_fact:
+    custom_packages_filtered: "{{ custom_installer_packages | selectattr('profile_tags', 'contains', profile) | list }}"
+
+- name: Display custom installer plan
+  debug:
+    msg:
+      - "Custom installer packages to install: {{ custom_packages_filtered | length }}"
+      - "Profile: {{ profile }}"
+
+- name: Check if GITHUB_TOKEN is set
+  set_fact:
+    has_github_token: "{{ lookup('env', 'GITHUB_TOKEN') != '' }}"
+
+- name: Display GitHub API notice
+  debug:
+    msg:
+      - "GITHUB_TOKEN not set - using unauthenticated GitHub API"
+      - "Rate limit: 60 requests/hour (authenticated: 5000/hour)"
+      - "Set GITHUB_TOKEN environment variable for higher rate limits"
+  when: not has_github_token
+
+- name: Install custom packages
+  include_tasks: install-custom-package.yml
+  loop: "{{ custom_packages_filtered }}"
+  loop_control:
+    loop_var: custom_package
+    label: "{{ custom_package.name }}"
+
+- name: Display custom installer summary
+  debug:
+    msg:
+      - "Custom installer packages completed"
+      - "Check logs for installation details"

@@ -1,0 +1,51 @@
+---
+# stuff like .NET, VC++ Redistributable, Chocolatey
+
+- name: Load dependency definitions
+  include_vars:
+    file: "../vars/dependencies.yml"
+  tags: always
+
+- name: Display dependencies to install
+  debug:
+    msg: "Installing {{ dependencies | length }} system dependencies"
+  tags: always
+
+- name: Check if Chocolatey is installed
+  win_shell: |
+    if (Get-Command choco -ErrorAction SilentlyContinue) {
+      Write-Output "installed"
+    } else {
+      Write-Output "not_installed"
+    }
+  register: choco_check
+  changed_when: false
+  when: ansible_os_family == 'Windows'
+
+- name: Install Chocolatey
+  ansible.builtin.raw: |
+    Set-ExecutionPolicy Bypass -Scope Process -Force
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+    iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+  when:
+    - ansible_os_family == 'Windows'
+    - choco_check.stdout is defined
+    - "'not_installed' in choco_check.stdout"
+
+- name: Install dependencies via Chocolatey
+  win_chocolatey:
+    name: "{{ item.choco }}"
+    state: present
+  loop: "{{ dependencies }}"
+  when:
+    - ansible_os_family == 'Windows'
+    - item.choco is defined
+  register: dep_install_result
+  failed_when: false
+
+- name: Display dependency installation results
+  debug:
+    msg:
+      - "Dependencies installed:"
+      - "{{ dep_install_result.results | map(attribute='item.display_name') | list }}"
+  when: dep_install_result.results is defined

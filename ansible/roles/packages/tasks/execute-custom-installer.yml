@@ -1,0 +1,67 @@
+---
+# Handles installer execution or portable app extraction
+
+- name: Execute installer (type - installer)
+  ansible.windows.win_package:
+    path: "{{ installer_path }}"
+    arguments: "{{ package_config.install_args | default('') }}"
+    state: present
+    product_id: "{{ package_config.name }}"
+  when: package_config.install_type == 'installer'
+  register: installer_result
+
+- name: Execute MSI installer (type - msi)
+  ansible.windows.win_package:
+    path: "{{ installer_path }}"
+    arguments: "{{ package_config.install_args | default('/quiet /norestart') }}"
+    state: present
+  when: package_config.install_type == 'msi'
+  register: msi_result
+
+- name: Extract portable app (type - portable)
+  block:
+    - name: Expand environment variables in extract path
+      win_shell: |
+        $path = "{{ package_config.extract_to }}"
+        [System.Environment]::ExpandEnvironmentVariables($path)
+      register: expanded_path
+      changed_when: false
+
+    - name: Create portable app directory
+      ansible.windows.win_file:
+        path: "{{ expanded_path.stdout | trim }}"
+        state: directory
+
+    - name: Check if file is ZIP archive
+      win_stat:
+        path: "{{ installer_path }}"
+      register: file_stat
+
+    - name: Extract ZIP archive
+      community.windows.win_unzip:
+        src: "{{ installer_path }}"
+        dest: "{{ expanded_path.stdout | trim }}"
+      when:
+        - file_stat.stat.exists
+        - installer_path is regex('.*\\.zip$', ignorecase=true)
+
+    - name: Copy portable executable
+      ansible.windows.win_copy:
+        src: "{{ installer_path }}"
+        dest: "{{ expanded_path.stdout | trim }}\\{{ package_config.name | regex_replace(' ', '_') }}.exe"
+        remote_src: true
+      when:
+        - file_stat.stat.exists
+        - installer_path is regex('.*\\.exe$', ignorecase=true)
+
+    - name: Display portable app location
+      debug:
+        msg:
+          - "Portable app installed to: {{ expanded_path.stdout | trim }}"
+          - "Add to PATH if needed for command-line access"
+
+  when: package_config.install_type == 'portable'
+
+- name: Installation complete
+  debug:
+    msg: "{{ package_config.name }} installed successfully"

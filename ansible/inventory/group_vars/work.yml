@@ -1,0 +1,3 @@
+migration_profile: work
+
+target_user: "{{ ansible_user | default('vagrant') }}"

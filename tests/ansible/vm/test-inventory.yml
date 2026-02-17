@@ -1,0 +1,31 @@
+---
+
+all:
+  hosts:
+    win11-vagrant:
+      ansible_host: 127.0.0.1
+      ansible_port: 55985
+      ansible_user: vagrant
+      ansible_password: vagrant
+      ansible_connection: winrm
+      ansible_winrm_transport: basic
+      ansible_winrm_server_cert_validation: ignore
+      ansible_become_method: runas
+      ansible_become_user: vagrant
+
+  vars:
+    profile: work
+
+    wsl_enabled: true
+    wsl_distro: fedora
+    docker_enabled: true
+
+    package_categories:
+      - utility
+      - dev
+      - productivity
+      - browser
+      - security
+
+    cleanup_temp_files: true
+    clean_obsolete_paths: false

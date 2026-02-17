@@ -1,0 +1,76 @@
+---
+# Apply registry settings to a specific user's hive
+
+- name: Load fallback registry settings
+  include_vars:
+    file: ../vars/fallback_settings.yml
+
+- name: Get target user SID
+  win_shell: |
+    $user = "{{ target_user | default('vagrant') }}"
+    try {
+      $objUser = New-Object System.Security.Principal.NTAccount($user)
+      $sid = $objUser.Translate([System.Security.Principal.SecurityIdentifier])
+      Write-Output $sid.Value
+    } catch {
+      Write-Error "Could not find SID for user: $user"
+      exit 1
+    }
+  register: user_sid_result
+  changed_when: false
+
+- name: Set user SID fact
+  set_fact:
+    target_user_sid: "{{ user_sid_result.stdout | trim }}"
+
+- name: Display target user info
+  debug:
+    msg: "Applying registry settings for user '{{ target_user | default('vagrant') }}' (SID: {{ target_user_sid }})"
+
+- name: Mount HKU PSDrive if not present
+  win_shell: |
+    if (-not (Get-PSDrive -Name HKU -ErrorAction SilentlyContinue)) {
+      New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS | Out-Null
+      Write-Output "mounted"
+    } else {
+      Write-Output "already_mounted"
+    }
+  register: hku_mount
+  changed_when: "'mounted' in hku_mount.stdout"
+
+- name: Transform HKCU paths to HKU paths
+  set_fact:
+    registry_settings_hku: "{{ registry_settings_hku | default([]) + [item | combine({'path': item.path | regex_replace('^HKCU:', 'HKU:\\\\' + target_user_sid)})] }}"
+  loop: "{{ registry_settings }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Apply registry settings to user hive
+  ansible.windows.win_regedit:
+    path: "{{ item.path }}"
+    name: "{{ item.name }}"
+    data: "{{ item.data }}"
+    type: "{{ item.type }}"
+    state: present
+  loop: "{{ registry_settings_hku }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: reg_result
+
+- name: Verify critical registry settings
+  win_reg_stat:
+    path: "HKU:\\{{ target_user_sid }}\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+    name: "{{ item }}"
+  loop:
+    - TaskbarAl
+    - Hidden
+  register: verify_result
+  failed_when: false
+
+- name: Display results
+  debug:
+    msg:
+      - "Applied {{ reg_result.results | selectattr('changed', 'equalto', true) | list | length }} of {{ registry_settings | length }} registry settings"
+      - "Target: {{ target_user | default('vagrant') }} ({{ target_user_sid }})"
+      - "Taskbar alignment: {{ verify_result.results[0].value | default('Not set') }} (0=left)"
+      - "Show hidden files: {{ verify_result.results[1].value | default('Not set') }} (2=show)"

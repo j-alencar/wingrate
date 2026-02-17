@@ -1,0 +1,31 @@
+---
+
+- name: Create temporary directory for DSC files
+  win_file:
+    path: C:\Temp\ansible-registry-dsc
+    state: directory
+
+- name: Copy DSC configuration to target
+  win_copy:
+    src: base.dsc.yaml
+    dest: C:\Temp\ansible-registry-dsc\base.dsc.yaml
+
+- name: Apply configuration via WinGet Configure
+  win_shell: |
+    $ErrorActionPreference = "Stop"
+    $result = winget configure --file "C:\Temp\ansible-registry-dsc\base.dsc.yaml" --accept-configuration-agreements 2>&1
+    if ($LASTEXITCODE -ne 0) {
+      Write-Error "WinGet Configure failed with exit code $LASTEXITCODE"
+      Write-Output $result
+      exit $LASTEXITCODE
+    }
+    Write-Output $result
+  register: winget_result
+  changed_when: "'Successfully applied configuration' in winget_result.stdout"
+  failed_when: winget_result.rc != 0
+
+- name: Cleanup temporary DSC files
+  win_file:
+    path: C:\Temp\ansible-registry-dsc
+    state: absent
+  when: cleanup_temp_files | default(true)

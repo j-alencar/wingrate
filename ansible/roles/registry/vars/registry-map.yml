@@ -1,0 +1,73 @@
+mappings:
+  taskbar.alignment:
+    path: HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: TaskbarAl
+    type: DWORD
+    values:
+      left: 0
+      center: 1
+
+  taskbar.search_box:
+    path: HKCU\Software\Microsoft\Windows\CurrentVersion\Search
+    name: SearchboxTaskbarMode
+    type: DWORD
+    values:
+      hidden: 0
+      icon: 1
+      box: 2
+
+  taskbar.task_view_button:
+    path: HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: ShowTaskViewButton
+    type: DWORD
+    values:
+      hidden: 0
+      visible: 1
+
+  taskbar.widgets:
+    path: HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: TaskbarDa
+    type: DWORD
+    values:
+      hidden: 0
+      visible: 1
+
+  explorer.show_file_extensions:
+    path: HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: HideFileExt
+    type: DWORD
+    values:
+      true: 0
+      false: 1
+
+  explorer.show_hidden_files:
+    path: HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: Hidden
+    type: DWORD
+    values:
+      true: 1
+      false: 2
+
+  explorer.show_system_files:
+    path: HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: ShowSuperHidden
+    type: DWORD
+    values:
+      true: 1
+      false: 0
+
+  explorer.launch_to:
+    path: HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: LaunchTo
+    type: DWORD
+    values:
+      thispc: 1
+      quickaccess: 2
+
+  explorer.navigation_pane_show_all_folders:
+    path: HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+    name: NavPaneShowAllFolders
+    type: DWORD
+    values:
+      true: 1
+      false: 0
