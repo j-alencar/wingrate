@@ -13,3 +13,6 @@ collections:
   - name: community.general
     version: ">=8.0.0"
     source: https://galaxy.ansible.com
+
+  - name: chocolatey.chocolatey
+    source: https://galaxy.ansible.com

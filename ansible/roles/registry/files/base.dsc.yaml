@@ -1,179 +1,201 @@
 properties:
   configurationVersion: 0.2.0
   resources:
-    - resource: Microsoft.Windows/Registry
+    - resource: PSDscResources/Registry
       directives:
         description: Set taskbar alignment to left
       settings:
-        keyPath: HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
-        valueName: TaskbarAl
-        valueType: Dword
-        valueData: 0
-    - resource: Microsoft.Windows/Registry
+        Key: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+        ValueName: TaskbarAl
+        ValueType: Dword
+        ValueData: "0"
+        Force: true
+    - resource: PSDscResources/Registry
       directives:
         description: Hide taskbar widgets
       settings:
-        keyPath: HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
-        valueName: TaskbarDa
-        valueType: Dword
-        valueData: 0
-    - resource: Microsoft.Windows/Registry
+        Key: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+        ValueName: TaskbarDa
+        ValueType: Dword
+        ValueData: "0"
+        Force: true
+    - resource: PSDscResources/Registry
       directives:
         description: Hide taskbar chat icon
       settings:
-        keyPath: HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
-        valueName: TaskbarMn
-        valueType: Dword
-        valueData: 0
-    - resource: Microsoft.Windows/Registry
+        Key: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+        ValueName: TaskbarMn
+        ValueType: Dword
+        ValueData: "0"
+        Force: true
+    - resource: PSDscResources/Registry
       directives:
         description: Hide Task View button from taskbar
       settings:
-        keyPath: HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
-        valueName: ShowTaskViewButton
-        valueType: Dword
-        valueData: 0
-    - resource: Microsoft.Windows/Registry
+        Key: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+        ValueName: ShowTaskViewButton
+        ValueType: Dword
+        ValueData: "0"
+        Force: true
+    - resource: PSDscResources/Registry
       directives:
         description: Hide search box from taskbar
       settings:
-        keyPath: HKCU\Software\Microsoft\Windows\CurrentVersion\Search
-        valueName: SearchboxTaskbarMode
-        valueType: Dword
-        valueData: 0
-    - resource: Microsoft.Windows/Registry
+        Key: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Search
+        ValueName: SearchboxTaskbarMode
+        ValueType: Dword
+        ValueData: "0"
+        Force: true
+    - resource: PSDscResources/Registry
       directives:
         description: Hide hidden files and folders
       settings:
-        keyPath: HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
-        valueName: Hidden
-        valueType: Dword
-        valueData: 2
-    - resource: Microsoft.Windows/Registry
+        Key: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+        ValueName: Hidden
+        ValueType: Dword
+        ValueData: "2"
+        Force: true
+    - resource: PSDscResources/Registry
       directives:
         description: Hide file extensions for known file types
       settings:
-        keyPath: HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
-        valueName: HideFileExt
-        valueType: Dword
-        valueData: 1
-    - resource: Microsoft.Windows/Registry
+        Key: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+        ValueName: HideFileExt
+        ValueType: Dword
+        ValueData: "1"
+        Force: true
+    - resource: PSDscResources/Registry
       directives:
         description: Hide protected operating system files
       settings:
-        keyPath: HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
-        valueName: ShowSuperHidden
-        valueType: Dword
-        valueData: 0
-    - resource: Microsoft.Windows/Registry
+        Key: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+        ValueName: ShowSuperHidden
+        ValueType: Dword
+        ValueData: "0"
+        Force: true
+    - resource: PSDscResources/Registry
       directives:
         description: Show thumbnails instead of icons
       settings:
-        keyPath: HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
-        valueName: IconsOnly
-        valueType: Dword
-        valueData: 0
-    - resource: Microsoft.Windows/Registry
+        Key: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+        ValueName: IconsOnly
+        ValueType: Dword
+        ValueData: "0"
+        Force: true
+    - resource: PSDscResources/Registry
       directives:
         description: Enable classic context menu
       settings:
-        keyPath: HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32
-        valueName: (Default)
-        valueType: String
-        valueData: ""
-    - resource: Microsoft.Windows/Registry
+        Key: HKEY_CURRENT_USER\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32
+        ValueName: ""
+        ValueType: String
+        ValueData: ""
+        Force: true
+    - resource: PSDscResources/Registry
       directives:
         description: Disable snap assist flyout
       settings:
-        keyPath: HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
-        valueName: EnableSnapAssistFlyout
-        valueType: Dword
-        valueData: 0
-    - resource: Microsoft.Windows/Registry
+        Key: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced
+        ValueName: EnableSnapAssistFlyout
+        ValueType: Dword
+        ValueData: "0"
+        Force: true
+    - resource: PSDscResources/Registry
       directives:
         description: Dark mode for applications
       settings:
-        keyPath: HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize
-        valueName: AppsUseLightTheme
-        valueType: Dword
-        valueData: 0
-    - resource: Microsoft.Windows/Registry
+        Key: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize
+        ValueName: AppsUseLightTheme
+        ValueType: Dword
+        ValueData: "0"
+        Force: true
+    - resource: PSDscResources/Registry
       directives:
         description: Dark mode for system UI
       settings:
-        keyPath: HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize
-        valueName: SystemUsesLightTheme
-        valueType: Dword
-        valueData: 0
-    - resource: Microsoft.Windows/Registry
+        Key: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize
+        ValueName: SystemUsesLightTheme
+        ValueType: Dword
+        ValueData: "0"
+        Force: true
+    - resource: PSDscResources/Registry
       directives:
         description: Disable transparency effects
       settings:
-        keyPath: HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize
-        valueName: EnableTransparency
-        valueType: Dword
-        valueData: 0
-    - resource: Microsoft.Windows/Registry
+        Key: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize
+        ValueName: EnableTransparency
+        ValueType: Dword
+        ValueData: "0"
+        Force: true
+    - resource: PSDscResources/Registry
       directives:
         description: Disable suggested content in Windows
       settings:
-        keyPath: HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
-        valueName: SubscribedContent-338393Enabled
-        valueType: Dword
-        valueData: 0
-    - resource: Microsoft.Windows/Registry
+        Key: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
+        ValueName: SubscribedContent-338393Enabled
+        ValueType: Dword
+        ValueData: "0"
+        Force: true
+    - resource: PSDscResources/Registry
       directives:
         description: Disable Windows tips and suggestions
       settings:
-        keyPath: HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
-        valueName: SubscribedContent-353694Enabled
-        valueType: Dword
-        valueData: 0
-    - resource: Microsoft.Windows/Registry
+        Key: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
+        ValueName: SubscribedContent-353694Enabled
+        ValueType: Dword
+        ValueData: "0"
+        Force: true
+    - resource: PSDscResources/Registry
       directives:
         description: Disable app suggestions in Start Menu
       settings:
-        keyPath: HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
-        valueName: SubscribedContent-338388Enabled
-        valueType: Dword
-        valueData: 0
-    - resource: Microsoft.Windows/Registry
+        Key: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
+        ValueName: SubscribedContent-338388Enabled
+        ValueType: Dword
+        ValueData: "0"
+        Force: true
+    - resource: PSDscResources/Registry
       directives:
         description: Disable advertising ID
       settings:
-        keyPath: HKCU\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo
-        valueName: Enabled
-        valueType: Dword
-        valueData: 0
-    - resource: Microsoft.Windows/Registry
+        Key: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo
+        ValueName: Enabled
+        ValueType: Dword
+        ValueData: "0"
+        Force: true
+    - resource: PSDscResources/Registry
       directives:
         description: Disable tailored experiences with diagnostic data
       settings:
-        keyPath: HKCU\Software\Microsoft\Windows\CurrentVersion\Privacy
-        valueName: TailoredExperiencesWithDiagnosticDataEnabled
-        valueType: Dword
-        valueData: 0
-    - resource: Microsoft.Windows/Registry
+        Key: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Privacy
+        ValueName: TailoredExperiencesWithDiagnosticDataEnabled
+        ValueType: Dword
+        ValueData: "0"
+        Force: true
+    - resource: PSDscResources/Registry
       directives:
         description: Enable clipboard history (Win+V)
       settings:
-        keyPath: HKCU\Software\Microsoft\Clipboard
-        valueName: EnableClipboardHistory
-        valueType: Dword
-        valueData: 1
-    - resource: Microsoft.Windows/Registry
+        Key: HKEY_CURRENT_USER\Software\Microsoft\Clipboard
+        ValueName: EnableClipboardHistory
+        ValueType: Dword
+        ValueData: "1"
+        Force: true
+    - resource: PSDscResources/Registry
       directives:
         description: Disable window animations
       settings:
-        keyPath: HKCU\Control Panel\Desktop\WindowMetrics
-        valueName: MinAnimate
-        valueType: String
-        valueData: "0"
-    - resource: Microsoft.Windows/Registry
+        Key: HKEY_CURRENT_USER\Control Panel\Desktop\WindowMetrics
+        ValueName: MinAnimate
+        ValueType: String
+        ValueData: "0"
+        Force: true
+    - resource: PSDscResources/Registry
       directives:
         description: Show window contents while dragging
       settings:
-        keyPath: HKCU\Control Panel\Desktop
-        valueName: DragFullWindows
-        valueType: String
-        valueData: "1"
+        Key: HKEY_CURRENT_USER\Control Panel\Desktop
+        ValueName: DragFullWindows
+        ValueType: String
+        ValueData: "1"
+        Force: true

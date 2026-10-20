@@ -1,7 +1,10 @@
 # can be overridden by profiles
 ansible_connection: local
-ansible_become: yes
 ansible_become_method: runas
+admin_domain: "{{ lookup('env', 'ADMIN_DOMAIN') }}"
+admin_name: "{{ lookup('env', 'ADMIN_NAME') }}"
+admin_separator: '\'
+admin_user: "{{ admin_domain ~ admin_separator ~ admin_name if admin_domain else admin_name }}"
 
 user_home: "{{ ansible_env.USERPROFILE | default(ansible_env.HOME) }}"
 appdata: "{{ ansible_env.APPDATA }}"

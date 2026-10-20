@@ -74,6 +74,8 @@
     label: "{{ package_item.name }}"
   async: "{{ package_install_timeout | int + 120 }}"
   poll: 0
+  become: "{{ elevate | default(false) }}"
+  become_user: "{{ admin_user }}"
   register: async_jobs
   when: concurrent_packages | length > 0
 
@@ -83,6 +85,8 @@
   loop: "{{ async_jobs.results | default([]) }}"
   loop_control:
     label: "{{ item.package_item.name | default('unknown') }}"
+  become: "{{ elevate | default(false) }}"
+  become_user: "{{ admin_user }}"
   register: async_results
   until: async_results.finished
   retries: "{{ ((package_install_timeout | int + 120) / 15) | int }}"
@@ -107,22 +111,34 @@
 # --- Phase 2: Sequential installs (MSI/EXE packages) ---
 
 - name: Install packages sequentially via Chocolatey
-  include_tasks: install-package.yml
-  loop: "{{ sequential_packages }}"
-  loop_control:
-    loop_var: package_item
+  block:
+    - name: Run sequential installs
+      include_tasks: install-package.yml
+      loop: "{{ sequential_packages }}"
+      loop_control:
+        loop_var: package_item
+  become: "{{ elevate | default(false) }}"
+  become_user: "{{ admin_user }}"
 
 # --- Phase 3: Rollback any failed concurrent packages ---
 
 - name: Retry failed concurrent packages with version rollback
-  include_tasks: install-package-rollback.yml
-  loop: "{{ failed_concurrent | default([]) }}"
-  loop_control:
-    loop_var: package_item
+  block:
+    - name: Run version rollback
+      include_tasks: install-package-rollback.yml
+      loop: "{{ failed_concurrent | default([]) }}"
+      loop_control:
+        loop_var: package_item
+  become: "{{ elevate | default(false) }}"
+  become_user: "{{ admin_user }}"
   when: failed_concurrent | default([]) | length > 0
 
 - name: Install custom installer packages
-  include_tasks: custom-installers.yml
+  block:
+    - name: Run custom installers
+      include_tasks: custom-installers.yml
+  become: "{{ elevate | default(false) }}"
+  become_user: "{{ admin_user }}"
   when: custom_installer_packages is defined and custom_installer_packages | length > 0
 
 - name: Install Python tools via uv
