@@ -126,7 +126,11 @@
   when: custom_installer_packages is defined and custom_installer_packages | length > 0
 
 - name: Install Python tools via uv
-  include_tasks: uv-tools.yml
+  include_tasks:
+    file: uv-tools.yml
+    apply:
+      tags: uv_tools
+  tags: uv_tools
   when: uv_tools is defined and uv_tools | length > 0
 
 - name: Display final installation summary
