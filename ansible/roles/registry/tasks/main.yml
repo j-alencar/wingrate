@@ -34,20 +34,7 @@
     winget_configure_supported: >-
       {{
         winget_available and
-        (winget_version | regex_search('v?(\d+)\.(\d+)\.(\d+)', '\\1', '\\2', '\\3') is not none) and
-        (
-          (winget_version | regex_search('v?(\d+)\.(\d+)\.(\d+)', '\\1') | default([0]) | first | int > 1) or
-          (
-            (winget_version | regex_search('v?(\d+)\.(\d+)\.(\d+)', '\\1') | default([0]) | first | int == 1) and
-            (
-              (winget_version | regex_search('v?(\d+)\.(\d+)\.(\d+)', '\\2') | default([0]) | first | int > 6) or
-              (
-                (winget_version | regex_search('v?(\d+)\.(\d+)\.(\d+)', '\\2') | default([0]) | first | int == 6) and
-                (winget_version | regex_search('v?(\d+)\.(\d+)\.(\d+)', '\\3') | default([0]) | first | int >= 2631)
-              )
-            )
-          )
-        )
+        (winget_version | regex_replace('^v', '')) is version('1.6.2631', '>=')
       }}
 
 - name: Display configuration method
