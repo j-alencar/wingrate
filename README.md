@@ -136,7 +136,8 @@ type "$env:USERPROFILE\.ssh\authorized_keys" # Check the file exists and has you
 
 ### Registry Settings Not Applying
 
-Settings are written to the specific user's registry hive (via SID lookup). Make sure `ansible_user` matches the Windows user whose settings you want to change.
+Settings go to the SSH user's registry hive.
+To change another user's settings, add `-e target_user=<user>`.
 
 Restart Explorer or log out/in after registry changes:
 
