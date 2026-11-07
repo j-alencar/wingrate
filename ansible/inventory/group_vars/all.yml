@@ -1,6 +1,5 @@
 # can be overridden by profiles
 ansible_connection: local
-ansible_become: yes
 ansible_become_method: runas
 
 user_home: "{{ ansible_env.USERPROFILE | default(ansible_env.HOME) }}"
