@@ -2,6 +2,11 @@
 
 Ansible playbooks for setting up a fresh Windows machine via internal control node in WSL.
 
+> [!CAUTION]
+> Run your terminal as Administrator.
+> Most tasks need it,
+> such as the ones that manage sshd, install packages, or change the Windows Registry.
+
 ## Prerequisites
 
 - Windows 10 1903+ or later
@@ -14,8 +19,6 @@ wsl --install -d Debian
 ## Setup
 
 ### 1. Enable OpenSSH Server on Windows
-
-Run in PowerShell as Administrator:
 
 ```powershell
 Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
