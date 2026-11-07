@@ -199,3 +199,21 @@ properties:
         ValueType: String
         ValueData: "1"
         Force: true
+    - resource: PSDscResources/Registry
+      directives:
+        description: Disable Notepad spell check
+      settings:
+        Key: HKEY_CURRENT_USER\Software\Microsoft\Notepad
+        ValueName: SpellCheckEnabled
+        ValueType: Dword
+        ValueData: "0"
+        Force: true
+    - resource: PSDscResources/Registry
+      directives:
+        description: Disable Notepad autocorrect
+      settings:
+        Key: HKEY_CURRENT_USER\Software\Microsoft\Notepad
+        ValueName: AutocorrectEnabled
+        ValueType: Dword
+        ValueData: "0"
+        Force: true

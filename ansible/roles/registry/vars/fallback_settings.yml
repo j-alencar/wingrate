@@ -101,6 +101,17 @@ registry_settings:
     data: "0" # Disable minimize animation
     type: string
 
+  # === Notepad ===
+  - path: HKCU:\Software\Microsoft\Notepad
+    name: SpellCheckEnabled
+    data: 0
+    type: dword
+
+  - path: HKCU:\Software\Microsoft\Notepad
+    name: AutocorrectEnabled
+    data: 0
+    type: dword
+
   # === Task Manager ===
   - path: HKCU:\Software\Microsoft\Windows\CurrentVersion\TaskManager
     name: StartUpTab
