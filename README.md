@@ -60,12 +60,12 @@ cd wingrate
 curl -LsSf https://astral.sh/uv/install.sh | sh
 source ~/.local/bin/env
 
-uv pip install --system ansible
+uv tool install ansible-core
 
 cd ansible
-ansible-galaxy collection install -r requirements.yml
+uv tool run --from ansible-core ansible-galaxy collection install -r requirements.yml
 
-ansible-playbook playbooks/main.yml -i inventory/hosts.yml -e profile=work -e ansible_user=$USER
+uv tool run --from ansible-core ansible-playbook playbooks/main.yml -i inventory/hosts.yml -e profile=work -e ansible_user=$USER
 ```
 
 ## Usage
@@ -78,16 +78,16 @@ Edit `inventory/group_vars/work.yml` or `home.yml` to customize settings per pro
 
 ```bash
 # Packages only
-ansible-playbook playbooks/main.yml -i inventory/hosts.yml --tags packages -e profile=work -e ansible_user=$USER
+uv tool run --from ansible-core ansible-playbook playbooks/main.yml -i inventory/hosts.yml --tags packages -e profile=work -e ansible_user=$USER
 
 # Registry only
-ansible-playbook playbooks/main.yml -i inventory/hosts.yml --tags registry -e profile=work -e ansible_user=$USER
+uv tool run --from ansible-core ansible-playbook playbooks/main.yml -i inventory/hosts.yml --tags registry -e profile=work -e ansible_user=$USER
 ```
 
 ### Dry run
 
 ```bash
-ansible-playbook playbooks/main.yml -i inventory/hosts.yml --check --diff -e profile=work -e ansible_user=$USER
+uv tool run --from ansible-core ansible-playbook playbooks/main.yml -i inventory/hosts.yml --check --diff -e profile=work -e ansible_user=$USER
 ```
 
 ## Customization

@@ -71,22 +71,20 @@ else
 fi
 
 echo ""
-if ! command -v ansible-playbook &>/dev/null; then
-    echo "Installing Ansible via uv..."
-    if ! command -v uv &>/dev/null; then
-        curl -LsSf https://astral.sh/uv/install.sh | sh
-        export PATH="$HOME/.local/bin:$PATH"
-    fi
-    uv pip install --system ansible
+if ! command -v uv &>/dev/null; then
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    export PATH="$HOME/.local/bin:$PATH"
 fi
-echo "Ansible: $(ansible --version | head -1)"
+uv tool install ansible-core
+ANSIBLE="uv tool run --from ansible-core"
+echo "Ansible: $($ANSIBLE ansible --version | head -1)"
 
 # Install collections
 echo ""
 echo "Installing Ansible collections..."
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR/../ansible"
-ansible-galaxy collection install -r requirements.yml
+$ANSIBLE ansible-galaxy collection install -r requirements.yml
 
 # Get profile
 echo ""
@@ -109,7 +107,7 @@ if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
     exit 0
 fi
 
-ansible-playbook playbooks/main.yml \
+$ANSIBLE ansible-playbook playbooks/main.yml \
     -i inventory/hosts.yml \
     -e "profile=$PROFILE" \
     -e "ansible_user=$WIN_USER" \
