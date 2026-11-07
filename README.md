@@ -90,6 +90,24 @@ uv tool run --from ansible-core ansible-playbook playbooks/main.yml -i inventory
 uv tool run --from ansible-core ansible-playbook playbooks/main.yml -i inventory/hosts.yml --check --diff -e profile=work -e ansible_user=$USER
 ```
 
+### Elevation
+
+If your SSH user is not an administrator,
+install packages over a separate connection as an administrator,
+then apply the rest as yourself:
+
+```bash
+sudo apt install sshpass
+
+uv tool run --from ansible-core ansible-playbook playbooks/main.yml -i inventory/hosts.yml -e profile=work \
+  --tags packages --skip-tags uv_tools -e ansible_user='<domain>\<admin>' --ask-pass
+
+uv tool run --from ansible-core ansible-playbook playbooks/main.yml -i inventory/hosts.yml -e profile=work \
+  --tags registry,uv_tools -e ansible_user=$USER
+```
+
+Omit `<domain>\` for a local account.
+
 ## Customization
 
 ### Packages
