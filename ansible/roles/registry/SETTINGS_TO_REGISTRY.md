@@ -41,6 +41,13 @@ Settings applied by `base.dsc.yaml` (WinGet Configure) or `fallback_settings.yml
 | Advertising ID: off | `Enabled` (AdvertisingInfo) |
 | Tailored experiences: off | `TailoredExperiencesWithDiagnosticDataEnabled` |
 
+## Notepad
+
+| Setting | Registry Key |
+|---|---|
+| Spell check: off | `SpellCheckEnabled` |
+| Autocorrect: off | `AutocorrectEnabled` |
+
 ## Misc
 
 | Setting | Registry Key |
