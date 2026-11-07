@@ -12,14 +12,9 @@
 
 - name: Apply configuration via WinGet Configure
   win_shell: |
-    $ErrorActionPreference = "Stop"
-    $result = winget configure --file "C:\Temp\ansible-registry-dsc\base.dsc.yaml" --accept-configuration-agreements 2>&1
-    if ($LASTEXITCODE -ne 0) {
-      Write-Error "WinGet Configure failed with exit code $LASTEXITCODE"
-      Write-Output $result
-      exit $LASTEXITCODE
-    }
+    $result = winget configure --file "C:\Temp\ansible-registry-dsc\base.dsc.yaml" --accept-configuration-agreements --disable-interactivity 2>&1
     Write-Output $result
+    exit $LASTEXITCODE
   register: winget_result
   changed_when: "'Successfully applied configuration' in winget_result.stdout"
   failed_when: winget_result.rc != 0
